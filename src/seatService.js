@@ -106,10 +106,8 @@ export async function initEvent(eventId, totalSeats = 100) {
   const pipeline = redis.pipeline();
   pipeline.del(eventKeys.available, eventKeys.booked);
   pipeline.sadd(eventKeys.available, ...seatIds);
-  pipeline.hset(eventKeys.meta, {
-    totalSeats,
-    updatedAt: new Date().toISOString()
-  });
+  pipeline.hset(eventKeys.meta, 'totalSeats', String(totalSeats));
+  pipeline.hset(eventKeys.meta, 'updatedAt', new Date().toISOString());
   await pipeline.exec();
 
   return { eventId, totalSeats };
@@ -141,7 +139,7 @@ export async function getSeatMap(eventId) {
     .smembers(eventKeys.booked)
     .exec();
 
-  const totalSeats = Number(totalSeatsRaw || 0);
+  const totalSeats = Number(totalSeatsRaw || (availableSeats?.length || 0) + (bookedSeats?.length || 0));
   const availableSet = new Set(availableSeats || []);
   const bookedSet = new Set(bookedSeats || []);
   const seatIds = Array.from({ length: totalSeats }, (_, i) => `S${i + 1}`);
