@@ -1,9 +1,12 @@
 import express from 'express';
 import morgan from 'morgan';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   cancelLock,
   confirmSeat,
   getEventStatus,
+  getSeatMap,
   initEvent,
   lockSeat,
   oneStepBook
@@ -11,18 +14,19 @@ import {
 
 const DEFAULT_EVENT_ID = process.env.DEFAULT_EVENT_ID || 'concert-2026';
 const DEFAULT_TOTAL_SEATS = Number(process.env.DEFAULT_TOTAL_SEATS || 100);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const publicDir = path.resolve(__dirname, '../public');
 
 export function createApp() {
   const app = express();
   app.use(express.json());
   app.use(morgan('dev'));
+  app.use(express.static(publicDir));
 
-  app.get('/', async (_, res) => {
+  app.get('/api', async (_, res) => {
     const status = await getEventStatus(DEFAULT_EVENT_ID);
-    res.json({
-      service: 'concurrent-ticket-booking-system',
-      event: status
-    });
+    res.json({ service: 'concurrent-ticket-booking-system', event: status });
   });
 
   app.post('/api/events/:eventId/init', async (req, res) => {
@@ -38,6 +42,15 @@ export function createApp() {
   app.get('/api/events/:eventId/status', async (req, res) => {
     try {
       const result = await getEventStatus(req.params.eventId);
+      res.json({ success: true, ...result });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/events/:eventId/seats', async (req, res) => {
+    try {
+      const result = await getSeatMap(req.params.eventId);
       res.json({ success: true, ...result });
     } catch (error) {
       res.status(500).json({ success: false, error: error.message });

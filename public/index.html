@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ticket Booking Control Room</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+
+    <main class="layout">
+      <section class="hero card">
+        <p class="eyebrow">Concurrent Ticket Booking</p>
+        <h1>Seat Locking Control Room</h1>
+        <p class="subtext">Real-time booking demo powered by Redis atomic locks.</p>
+
+        <div class="stats" id="stats">
+          <div class="stat"><span>Total</span><strong id="stat-total">-</strong></div>
+          <div class="stat"><span>Available</span><strong id="stat-available">-</strong></div>
+          <div class="stat"><span>Booked</span><strong id="stat-booked">-</strong></div>
+          <div class="stat"><span>Selected</span><strong id="stat-selected">-</strong></div>
+        </div>
+      </section>
+
+      <section class="controls card">
+        <div class="field-row">
+          <label for="event-id">Event ID</label>
+          <input id="event-id" value="concert-2026" />
+        </div>
+        <div class="field-row">
+          <label for="user-id">User ID</label>
+          <input id="user-id" value="userA" />
+        </div>
+        <div class="field-row split">
+          <div>
+            <label for="total-seats">Init Seats</label>
+            <input id="total-seats" type="number" min="1" value="100" />
+          </div>
+          <button id="init-btn" class="btn btn-warning">Initialize</button>
+        </div>
+
+        <div class="button-grid">
+          <button id="refresh-btn" class="btn">Refresh</button>
+          <button id="book-btn" class="btn btn-primary">Book Next Seat</button>
+          <button id="lock-btn" class="btn">Lock Selected</button>
+          <button id="confirm-btn" class="btn btn-success">Confirm Selected</button>
+          <button id="cancel-btn" class="btn btn-danger">Cancel Selected</button>
+        </div>
+      </section>
+
+      <section class="seats card">
+        <div class="section-head">
+          <h2>Seat Map</h2>
+          <p id="seat-note">Click a seat to select it.</p>
+        </div>
+        <div id="seat-grid" class="seat-grid"></div>
+      </section>
+
+      <section class="logs card">
+        <div class="section-head">
+          <h2>Activity</h2>
+        </div>
+        <pre id="log-box">Waiting for actions...</pre>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

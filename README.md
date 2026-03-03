@@ -9,6 +9,7 @@ A production-style ticket booking backend that prevents double-booking under hig
 - Artillery (load testing)
 
 ## Features
+- Interactive frontend dashboard (seat map + lock/confirm/cancel actions)
 - Atomic seat lock (`/api/lock`) with lock TTL
 - Confirm booking (`/api/confirm`) only if lock owner matches
 - Cancel lock (`/api/cancel`)
@@ -66,6 +67,8 @@ npm run dev
 ```
 
 API runs at `http://localhost:3000`.
+- Frontend: `http://localhost:3000/`
+- API base: `http://localhost:3000/api`
 
 ## Full Docker Run
 ```bash

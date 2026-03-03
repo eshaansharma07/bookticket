@@ -132,6 +132,48 @@ export async function getEventStatus(eventId) {
   };
 }
 
+export async function getSeatMap(eventId) {
+  const eventKeys = keys(eventId, 'placeholder');
+  const [[, totalSeatsRaw], [, availableSeats], [, bookedSeats]] = await redis
+    .pipeline()
+    .hget(eventKeys.meta, 'totalSeats')
+    .smembers(eventKeys.available)
+    .smembers(eventKeys.booked)
+    .exec();
+
+  const totalSeats = Number(totalSeatsRaw || 0);
+  const availableSet = new Set(availableSeats || []);
+  const bookedSet = new Set(bookedSeats || []);
+  const seatIds = Array.from({ length: totalSeats }, (_, i) => `S${i + 1}`);
+  const lockKeys = seatIds.map((seatId) => keys(eventId, seatId).lock);
+  const lockOwners = lockKeys.length > 0 ? await redis.mget(lockKeys) : [];
+
+  const seats = seatIds.map((seatId, idx) => {
+    const lockOwner = lockOwners[idx];
+    let status = 'AVAILABLE';
+
+    if (bookedSet.has(seatId)) {
+      status = 'BOOKED';
+    } else if (lockOwner) {
+      status = 'LOCKED';
+    } else if (!availableSet.has(seatId)) {
+      status = 'UNAVAILABLE';
+    }
+
+    return {
+      seatId,
+      status,
+      lockOwner: lockOwner || null
+    };
+  });
+
+  return {
+    eventId,
+    totalSeats,
+    seats
+  };
+}
+
 export async function lockSeat({ eventId, seatId, userId, ttlSeconds = DEFAULT_LOCK_TTL_SECONDS }) {
   const eventKeys = keys(eventId, seatId);
   const result = await redis.eval(
