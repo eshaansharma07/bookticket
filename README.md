@@ -142,7 +142,7 @@ Response example:
 1. Ensure API + Redis are running.
 2. Run:
 ```bash
-npm run test:load
+TARGET_URL=http://localhost:3000 npm run test:load
 ```
 
 This uses `scripts/load-test.yml` to fire concurrent booking requests and validate that seats never overbook.
