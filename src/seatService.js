@@ -99,6 +99,15 @@ function keys(eventId, seatId) {
   };
 }
 
+function unwrapPipeline(results) {
+  for (const [error] of results) {
+    if (error) {
+      throw error;
+    }
+  }
+  return results;
+}
+
 export async function initEvent(eventId, totalSeats = 100) {
   const seatIds = Array.from({ length: totalSeats }, (_, i) => `S${i + 1}`);
   const eventKeys = keys(eventId, 'placeholder');
@@ -108,19 +117,21 @@ export async function initEvent(eventId, totalSeats = 100) {
   pipeline.sadd(eventKeys.available, ...seatIds);
   pipeline.hset(eventKeys.meta, 'totalSeats', String(totalSeats));
   pipeline.hset(eventKeys.meta, 'updatedAt', new Date().toISOString());
-  await pipeline.exec();
+  unwrapPipeline(await pipeline.exec());
 
   return { eventId, totalSeats };
 }
 
 export async function getEventStatus(eventId) {
   const eventKeys = keys(eventId, 'placeholder');
-  const [[, totalSeats], [, available], [, booked]] = await redis
+  const [[, totalSeats], [, available], [, booked]] = unwrapPipeline(
+    await redis
     .pipeline()
     .hget(eventKeys.meta, 'totalSeats')
     .scard(eventKeys.available)
     .scard(eventKeys.booked)
-    .exec();
+    .exec()
+  );
 
   return {
     eventId,
@@ -132,12 +143,14 @@ export async function getEventStatus(eventId) {
 
 export async function getSeatMap(eventId) {
   const eventKeys = keys(eventId, 'placeholder');
-  const [[, totalSeatsRaw], [, availableSeats], [, bookedSeats]] = await redis
+  const [[, totalSeatsRaw], [, availableSeats], [, bookedSeats]] = unwrapPipeline(
+    await redis
     .pipeline()
     .hget(eventKeys.meta, 'totalSeats')
     .smembers(eventKeys.available)
     .smembers(eventKeys.booked)
-    .exec();
+    .exec()
+  );
 
   const totalSeats = Number(totalSeatsRaw || (availableSeats?.length || 0) + (bookedSeats?.length || 0));
   const availableSet = new Set(availableSeats || []);
