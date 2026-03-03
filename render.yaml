@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: concurrent-ticket-booking-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          name: concurrent-ticket-booking-redis
+          type: redis
+          property: connectionString
+      - key: DEFAULT_EVENT_ID
+        value: concert-2026
+      - key: DEFAULT_TOTAL_SEATS
+        value: 100
+      - key: LOCK_TTL_SECONDS
+        value: 20
+
+  - type: redis
+    name: concurrent-ticket-booking-redis
+    plan: free
+    ipAllowList: []

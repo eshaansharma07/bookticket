@@ -1,0 +1,14 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 20
+      arrivalRate: 50
+      name: 'High concurrency burst'
+
+scenarios:
+  - name: 'Concurrent booking requests'
+    flow:
+      - post:
+          url: '/api/book'
+          json:
+            eventId: 'concert-2026'

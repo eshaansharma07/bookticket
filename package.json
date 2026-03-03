@@ -1,0 +1,26 @@
+{
+  "name": "concurrent-ticket-booking-system",
+  "version": "1.0.0",
+  "description": "Concurrent ticket booking system with Redis seat locking",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "seed": "node scripts/seed-event.js",
+    "test:load": "artillery run scripts/load-test.yml"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "ioredis": "^5.4.1",
+    "morgan": "^1.10.0",
+    "nanoid": "^5.0.7"
+  },
+  "devDependencies": {
+    "artillery": "^2.0.20"
+  }
+}

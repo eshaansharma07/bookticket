@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    command: redis-server --appendonly yes
+
+  api:
+    build: .
+    depends_on:
+      - redis
+    environment:
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379
+      - DEFAULT_EVENT_ID=concert-2026
+      - DEFAULT_TOTAL_SEATS=100
+      - LOCK_TTL_SECONDS=20
+    ports:
+      - '3000:3000'
