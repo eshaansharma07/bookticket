@@ -21,7 +21,10 @@ A production-style ticket booking backend that prevents double-booking under hig
 
 ```txt
 .
+├── api
+│   └── index.js
 ├── src
+│   ├── app.js
 │   ├── redis.js
 │   ├── seatService.js
 │   └── server.js
@@ -30,6 +33,7 @@ A production-style ticket booking backend that prevents double-booking under hig
 │   └── load-test.yml
 ├── Dockerfile
 ├── docker-compose.yml
+├── vercel.json
 ├── render.yaml
 ├── .env.example
 └── README.md
@@ -159,6 +163,34 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/<your-repo>.git
 git push -u origin main
 ```
+
+## Deploy and Get Demo Link (Vercel)
+
+Vercel does not provide Redis, so use an external Redis (Upstash or Redis Cloud) and set `REDIS_URL`.
+
+1. Create Redis database:
+   - Upstash: [https://upstash.com/](https://upstash.com/)
+   - Redis Cloud: [https://redis.io/cloud/](https://redis.io/cloud/)
+2. Copy your Redis connection URL.
+3. In Vercel:
+   - Import GitHub repo `eshaansharma07/bookticket`
+   - Framework preset: `Other`
+   - Build command: leave empty
+   - Output directory: leave empty
+4. Set environment variables in Vercel Project Settings:
+   - `REDIS_URL=<your-redis-url>`
+   - `DEFAULT_EVENT_ID=concert-2026`
+   - `DEFAULT_TOTAL_SEATS=100`
+   - `LOCK_TTL_SECONDS=20`
+5. Deploy.
+6. After deploy, initialize seats once:
+```bash
+curl -X POST https://<your-vercel-domain>/api/events/concert-2026/init \
+  -H "content-type: application/json" \
+  -d '{"totalSeats":100}'
+```
+7. Your demo link will look like:
+   - `https://bookticket-<suffix>.vercel.app`
 
 ## Deploy and Get Demo Link (Render)
 
